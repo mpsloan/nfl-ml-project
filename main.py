@@ -37,15 +37,16 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
          "Tennessee Titans": "TEN", "Washington Commanders": "WAS", "Washington Football Team": "WAS",
          "Washington Redskins": "WAS"}
 
-# data = pd.read_csv("nfl_data_edit.csv")
-# data["covered"] = "0"
-# data.to_csv("nfl_data_edit.csv")
+data = pd.read_csv("nfl_data_edit.csv")
+data["covered"] = "0"
+data.to_csv("nfl_data_edit.csv", index=False)
 
 # i = 0
-# with open("nfl_data_edit.csv", 'r') as csvfile:
-#     datareader = csv.reader(csvfile)
-#     for row in datareader:
-#         for column in datareader:
+# with open('nfl_data_edit.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
+#     writer = csv.writer(out)
+#     reader = csv.reader(inp)
+#     for row in reader:
+#         for column in reader:
 #             if row != 0:
 #                 team_home = column[4]
 #                 team_home_id = teams.get(team_home)
