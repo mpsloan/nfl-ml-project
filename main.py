@@ -38,11 +38,49 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
          "Washington Redskins": "WAS"}
 
 data = pd.read_csv("nfl_data_edit.csv")
-data["covered"] = "0"
-data.to_csv("nfl_data_edit.csv", index=False)
+# data["covered"] = "0"
+# data.to_csv("nfl_data_edit2.csv", index=False)
+
+spread = pd.Series([])
+
+for i in range(len(data)):
+    team_home = data['team_home'][i]
+    team_home_id = teams.get(team_home)
+    score_home = float(data['score_home'][i])
+    score_away = float(data['score_away'][i])
+    team_away = data['team_away'][i]
+    team_fav_id = data['team_favorite_id'][i]
+    spread_fav = float(data['spread_favorite'][i])
+    if team_fav_id == team_home_id:
+        home_fav = True
+    else:
+        away_fav = True
+        home_fav = False
+
+    if home_fav:
+        difference = score_home - score_away + spread_fav
+    else:
+        difference = score_away - score_home + spread_fav
+
+    if difference > 0:
+        spread[i] = 1
+    else:
+        spread[i] = 0
+
+data.drop('covered', inplace=True, axis=1)
+data.insert(17, "covered", spread)
+
+data.to_csv('nfl_data_edit2.csv', index=False)
+
+
+
+
+# data.loc[teams.get(data['team_home']) == ['team_favorite_id'] and
+#         (float(data['score_home']) - float(data['score_away']) + float(data['spread_favorite'])) > 0, 'covered'] = 1
+
 
 # i = 0
-# with open('nfl_data_edit.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
+# with open('nfl_data_edit.csv', 'r') as inp, open('nfl_data_edit2.csv', 'w') as out:
 #     writer = csv.writer(out)
 #     reader = csv.reader(inp)
 #     for row in reader:
