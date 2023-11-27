@@ -37,8 +37,44 @@ nfl_features['over_under_line'] = nfl_features['over_under_line'].astype(float)
 average_ou = nfl_features['over_under_line'].mean()
 nfl_features['over_under_line'].fillna(average_ou, inplace=True)
 
-nfl_features.loc[nfl_features['schedule_playoff'] == True and nfl_features['schedule_season'] < 2021
-        and nfl_features['schedule_week'] == 'Wildcard', 'schedule_week'] = '18'
+# Conditions for adding week numbers to dataset
+playoffs = nfl_features['schedule_playoff'] != 'False'
+traditional = nfl_features['schedule_season'] < 2021
+modern = nfl_features['schedule_season'] >= 2021
+wildcard = nfl_features['schedule_week'] == 'Wildcard'
+divisional = nfl_features['schedule_week'] == 'Division'
+conference = nfl_features['schedule_week'] == 'Conference'
+superbowl = nfl_features['schedule_week'] == 'Superbowl'
+
+# Before 2021, 17 week regular season (traditional)
+w_combination = playoffs & traditional & wildcard
+nfl_features.loc[w_combination, 'schedule_week'] = 18
+
+d_combination = playoffs & traditional & divisional
+nfl_features.loc[d_combination, 'schedule_week'] = 19
+
+c_combination = playoffs & traditional & conference
+nfl_features.loc[c_combination, 'schedule_week'] = 20
+
+sb_combination = playoffs & traditional & superbowl
+nfl_features.loc[sb_combination, 'schedule_week'] = 21
+
+# After 2021, 18 week regular season (modern)
+w_combination = playoffs & modern & wildcard
+nfl_features.loc[w_combination, 'schedule_week'] = 19
+
+d_combination = playoffs & modern & divisional
+nfl_features.loc[d_combination, 'schedule_week'] = 20
+
+c_combination = playoffs & modern & conference
+nfl_features.loc[c_combination, 'schedule_week'] = 21
+
+sb_combination = playoffs & modern & superbowl
+nfl_features.loc[sb_combination, 'schedule_week'] = 22
+
+print(nfl_features['schedule_week'][10729])
+
+print(nfl_features.info)
 
 # removing humidity feature, not very consequential and around 40% missing
 nfl_features.drop(columns=['weather_humidity'], inplace=True)
