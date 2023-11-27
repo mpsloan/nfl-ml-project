@@ -1,7 +1,10 @@
 # Michael Sloan
 import csv
 import os
+
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 
 def load_data():
@@ -10,33 +13,59 @@ def load_data():
     return pd.read_csv(csv_path)
 
 
+# declare data, label is covered, rest are the features
 nfl_data = load_data()
+nfl_label = nfl_data['covered'].copy()
+nfl_features = nfl_data.drop('covered', axis=1)
 
 # for some reason dataset filled in indoor, but left null for outdoor
 # so I filled in the rest with outdoor
-nfl_data['weather_detail'].fillna('outdoor', inplace=True)
+nfl_features['weather_detail'].fillna('outdoor', inplace=True)
 
 # filling the missing data for temperature in with the mean (only around 10% was missing)
-average_temp = nfl_data['weather_temperature'].mean()
-nfl_data['weather_temperature'].fillna(average_temp, inplace=True)
+average_temp = nfl_features['weather_temperature'].mean()
+nfl_features['weather_temperature'].fillna(average_temp, inplace=True)
 
 # filling the missing data for wind in with the mean (only around 10% was missing)
-average_wind = nfl_data['weather_wind_mph'].mean()
-nfl_data['weather_wind_mph'].fillna(average_wind, inplace=True)
+average_wind = nfl_features['weather_wind_mph'].mean()
+nfl_features['weather_wind_mph'].fillna(average_wind, inplace=True)
 
-nfl_data.drop(columns=['weather_humidity'], inplace=True)
+# over/under line for some reason was type object with empty strings instead of nan
+# filled the empty strings with nan and then got the average
+nfl_features['over_under_line'] = nfl_features['over_under_line'].replace(' ', np.nan)
+nfl_features['over_under_line'] = nfl_features['over_under_line'].astype(float)
+average_ou = nfl_features['over_under_line'].mean()
+nfl_features['over_under_line'].fillna(average_ou, inplace=True)
 
-print(nfl_data.info)
+nfl_features.loc[nfl_features['schedule_playoff'] == True and nfl_features['schedule_season'] < 2021
+        and nfl_features['schedule_week'] == 'Wildcard', 'schedule_week'] = '18'
 
-missing_counts = nfl_data.isnull().sum()
+# removing humidity feature, not very consequential and around 40% missing
+nfl_features.drop(columns=['weather_humidity'], inplace=True)
 
-print(missing_counts)
+nfl_num = nfl_features.select_dtypes(include=['number'])
 
-missing_percentage = (nfl_data.isnull().mean() * 100).round(2)
+nfl_cat = nfl_features.select_dtypes(exclude=['number'])
 
-print(missing_percentage)
+print(nfl_num.columns.tolist())
+print(nfl_cat.columns.tolist())
+
+label_encoder = LabelEncoder()
+
+# nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
+
+# nfl_data['stadium_neutral_encoded'] = label_encoder.fit_transform(nfl_data['stadium_neutral'])
 
 
+# print(nfl_data.info)
+#
+# missing_counts = nfl_data.isnull().sum()
+#
+# print(missing_counts)
+#
+# missing_percentage = (nfl_data.isnull().mean() * 100).round(2)
+#
+# print(missing_percentage)
 
 
 # with open('nfl_data.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
