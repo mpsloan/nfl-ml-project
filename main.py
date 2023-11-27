@@ -1,5 +1,4 @@
 # Michael Sloan
-# Final Project
 import csv
 import os
 import pandas as pd
@@ -7,11 +6,38 @@ import pandas as pd
 
 def load_data():
     data_path = ""
-    csv_path = os.path.join(data_path, "nfl_data_edit.csv")
+    csv_path = os.path.join(data_path, "nfl_data_edit2.csv")
     return pd.read_csv(csv_path)
 
 
 nfl_data = load_data()
+
+# for some reason dataset filled in indoor, but left null for outdoor
+# so I filled in the rest with outdoor
+nfl_data['weather_detail'].fillna('outdoor', inplace=True)
+
+# filling the missing data for temperature in with the mean (only around 10% was missing)
+average_temp = nfl_data['weather_temperature'].mean()
+nfl_data['weather_temperature'].fillna(average_temp, inplace=True)
+
+# filling the missing data for wind in with the mean (only around 10% was missing)
+average_wind = nfl_data['weather_wind_mph'].mean()
+nfl_data['weather_wind_mph'].fillna(average_wind, inplace=True)
+
+nfl_data.drop(columns=['weather_humidity'], inplace=True)
+
+print(nfl_data.info)
+
+missing_counts = nfl_data.isnull().sum()
+
+print(missing_counts)
+
+missing_percentage = (nfl_data.isnull().mean() * 100).round(2)
+
+print(missing_percentage)
+
+
+
 
 # with open('nfl_data.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
 #     writer = csv.writer(out)
@@ -37,46 +63,41 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
          "Tennessee Titans": "TEN", "Washington Commanders": "WAS", "Washington Football Team": "WAS",
          "Washington Redskins": "WAS"}
 
-data = pd.read_csv("nfl_data_edit.csv")
+# data = pd.read_csv("nfl_data_edit.csv")
 # data["covered"] = "0"
 # data.to_csv("nfl_data_edit2.csv", index=False)
 
-spread = pd.Series([])
-
-for i in range(len(data)):
-    team_home = data['team_home'][i]
-    team_home_id = teams.get(team_home)
-    score_home = float(data['score_home'][i])
-    score_away = float(data['score_away'][i])
-    team_away = data['team_away'][i]
-    team_fav_id = data['team_favorite_id'][i]
-    spread_fav = float(data['spread_favorite'][i])
-    if team_fav_id == team_home_id:
-        home_fav = True
-    else:
-        away_fav = True
-        home_fav = False
-
-    if home_fav:
-        difference = score_home - score_away + spread_fav
-    else:
-        difference = score_away - score_home + spread_fav
-
-    if difference > 0:
-        spread[i] = 1
-    else:
-        spread[i] = 0
-
-data.drop('covered', inplace=True, axis=1)
-data.insert(17, "covered", spread)
-
-data.to_csv('nfl_data_edit2.csv', index=False)
-
-
-
-
-# data.loc[teams.get(data['team_home']) == ['team_favorite_id'] and
-#         (float(data['score_home']) - float(data['score_away']) + float(data['spread_favorite'])) > 0, 'covered'] = 1
+# spread = pd.Series([])
+#
+# # https://www.kaggle.com/code/mahdinezhadasad/adding-new-column-to-csv-file
+# for i in range(len(data)):
+#     team_home = data['team_home'][i]
+#     team_home_id = teams.get(team_home)
+#     score_home = float(data['score_home'][i])
+#     score_away = float(data['score_away'][i])
+#     team_away = data['team_away'][i]
+#     team_fav_id = data['team_favorite_id'][i]
+#     spread_fav = float(data['spread_favorite'][i])
+#     if team_fav_id == team_home_id:
+#         home_fav = True
+#     else:
+#         away_fav = True
+#         home_fav = False
+#
+#     if home_fav:
+#         difference = score_home - score_away + spread_fav
+#     else:
+#         difference = score_away - score_home + spread_fav
+#
+#     if difference > 0:
+#         spread[i] = 1
+#     else:
+#         spread[i] = 0
+#
+# data.drop('covered', inplace=True, axis=1)
+# data.insert(17, "covered", spread)
+#
+# data.to_csv('nfl_data_edit2.csv', index=False)
 
 
 # i = 0
