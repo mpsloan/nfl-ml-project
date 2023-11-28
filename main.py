@@ -3,11 +3,13 @@ import csv
 import os
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 
 
 def load_data():
@@ -114,16 +116,45 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_
 
 
 def knn():
-    k_nearest = KNeighborsClassifier(n_neighbors=20)
+    k_nearest = KNeighborsClassifier(n_neighbors=25)
     k_nearest.fit(X_train, y_train)
 
     y_pred = k_nearest.predict(X_test)
 
     knn_accuracy = accuracy_score(y_test, y_pred)
     knn_f1 = f1_score(y_test, y_pred)
+    # 71 accuracy, 64 F1, k=25
     return knn_accuracy, knn_f1
 
-accuracy, f1 = knn()
+
+def svm():
+    support_vm = SVC(kernel='rbf', random_state=42)
+    support_vm.fit(X_train, y_train)
+
+    y_pred = support_vm.predict(X_test)
+
+    svm_accuracy = accuracy_score(y_test, y_pred)
+    svm_f1 = f1_score(y_test, y_pred)
+    # 71/62 poly
+    # 67/60 linear
+    # 72/65 rbf
+    return svm_accuracy, svm_f1
+
+
+def logistic_reg():
+    log_reg = LogisticRegression(solver='newton-cg', random_state=42)
+    log_reg.fit(X_train, y_train)
+
+    y_pred = log_reg.predict(X_test)
+
+    reg_accuracy = accuracy_score(y_test, y_pred)
+
+    reg_f1 = f1_score(y_test, y_pred)
+    # 65/59 newton-cg
+    return reg_accuracy, reg_f1
+
+
+accuracy, f1 = logistic_reg()
 
 print(accuracy)
 print(f1)
