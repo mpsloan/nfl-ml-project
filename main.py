@@ -3,9 +3,11 @@ import csv
 import os
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def load_data():
@@ -108,15 +110,28 @@ nfl_num_scaled = std_scaler.fit_transform(nfl_num)
 X = np.concatenate((nfl_num_scaled, nfl_cat_encoded), axis=1)
 y = nfl_label.to_numpy()
 
-print(X.shape)
-print(y.shape)
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
-print(X_train.shape)
-print(X_test.shape)
-print(y_train.shape)
-print(y_test.shape)
+
+def knn():
+    k_nearest = KNeighborsClassifier(n_neighbors=20)
+    k_nearest.fit(X_train, y_train)
+
+    y_pred = k_nearest.predict(X_test)
+
+    knn_accuracy = accuracy_score(y_test, y_pred)
+    knn_f1 = f1_score(y_test, y_pred)
+    return knn_accuracy, knn_f1
+
+accuracy, f1 = knn()
+
+print(accuracy)
+print(f1)
+
+
+
+
+
 
 
 # nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
