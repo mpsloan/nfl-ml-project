@@ -15,6 +15,10 @@ def load_data():
 
 # declare data, label is covered, rest are the features
 nfl_data = load_data()
+
+# Removing data before they played 17 game seasons
+nfl_data = nfl_data.drop(range(0, 2415))
+
 nfl_label = nfl_data['covered'].copy()
 nfl_features = nfl_data.drop('covered', axis=1)
 
@@ -36,6 +40,8 @@ nfl_features['over_under_line'] = nfl_features['over_under_line'].replace(' ', n
 nfl_features['over_under_line'] = nfl_features['over_under_line'].astype(float)
 average_ou = nfl_features['over_under_line'].mean()
 nfl_features['over_under_line'].fillna(average_ou, inplace=True)
+
+
 
 # Conditions for adding week numbers to dataset
 playoffs = nfl_features['schedule_playoff'] != 'False'
@@ -72,12 +78,22 @@ nfl_features.loc[c_combination, 'schedule_week'] = 21
 sb_combination = playoffs & modern & superbowl
 nfl_features.loc[sb_combination, 'schedule_week'] = 22
 
-print(nfl_features['schedule_week'][10729])
+# All features are now integers
+nfl_features['schedule_week'] = nfl_features['schedule_week'].astype(int)
 
-print(nfl_features.info)
+# Break the dates up into individual features for month, day, and year
+nfl_features['schedule_date'] = pd.to_datetime(nfl_features['schedule_date'])
+nfl_features['schedule_month'] = nfl_features['schedule_date'].dt.month
+nfl_features['schedule_day'] = nfl_features['schedule_date'].dt.day
+nfl_features['schedule_year'] = nfl_features['schedule_date'].dt.year
 
-# removing humidity feature, not very consequential and around 40% missing
-nfl_features.drop(columns=['weather_humidity'], inplace=True)
+# Converting boolean values to integers
+nfl_features['schedule_playoff'] = nfl_features['schedule_playoff'].astype(int)
+nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
+
+# Removing humidity feature, not very consequential and around 40% missing
+# Removing schedule date because the date is broke up into 3 features now (month, day, year)
+nfl_features.drop(columns=['weather_humidity', 'schedule_date'], inplace=True)
 
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
@@ -86,7 +102,11 @@ nfl_cat = nfl_features.select_dtypes(exclude=['number'])
 print(nfl_num.columns.tolist())
 print(nfl_cat.columns.tolist())
 
-label_encoder = LabelEncoder()
+nfl_cat_encoded = pd.get_dummies(nfl_cat)
+nfl_cat = pd.concat([nfl_cat, nfl_cat_encoded], axis=1)
+
+print(nfl_cat)
+
 
 # nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
 
