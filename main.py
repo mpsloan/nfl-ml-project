@@ -1,10 +1,11 @@
 # Michael Sloan
 import csv
 import os
-
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 
 def load_data():
@@ -99,13 +100,23 @@ nfl_num = nfl_features.select_dtypes(include=['number'])
 
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
 
-print(nfl_num.columns.tolist())
-print(nfl_cat.columns.tolist())
-
 nfl_cat_encoded = pd.get_dummies(nfl_cat)
-nfl_cat = pd.concat([nfl_cat, nfl_cat_encoded], axis=1)
 
-print(nfl_cat)
+std_scaler = StandardScaler()
+nfl_num_scaled = std_scaler.fit_transform(nfl_num)
+
+X = np.concatenate((nfl_num_scaled, nfl_cat_encoded), axis=1)
+y = nfl_label.to_numpy()
+
+print(X.shape)
+print(y.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
+
+print(X_train.shape)
+print(X_test.shape)
+print(y_train.shape)
+print(y_test.shape)
 
 
 # nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
