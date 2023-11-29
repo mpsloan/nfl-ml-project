@@ -185,10 +185,35 @@ def random_forest():
     return rf_accuracy, rf_f1
 
 
+accuracy, f1 = knn()
+
+print(accuracy)
+print(f1)
+
+
+nfl_features = nfl_features[['score_home', 'team_home', 'score_away', 'team_away']]
+
+nfl_num = nfl_features.select_dtypes(include=['number'])
+
+nfl_cat = nfl_features.select_dtypes(exclude=['number'])
+
+nfl_cat_encoded = pd.get_dummies(nfl_cat)
+
+std_scaler = StandardScaler()
+nfl_num_scaled = std_scaler.fit_transform(nfl_num)
+
+X = np.concatenate((nfl_num_scaled, nfl_cat_encoded), axis=1)
+y = nfl_label.to_numpy()
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
+
 accuracy, f1 = random_forest()
 
 print(accuracy)
 print(f1)
+
+
+
 
 
 
