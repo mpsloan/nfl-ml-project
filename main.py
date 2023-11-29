@@ -177,8 +177,8 @@ def random_forest():
 
     rf_accuracy = accuracy_score(y_test, y_pred)
     rf_f1 = f1_score(y_test, y_pred)
-    for name, score in zip(nfl_features, rnd_f.feature_importances_):
-        print(name, score)
+    # for name, score in zip(nfl_features, rnd_f.feature_importances_):
+    #     print(name, score)
     # score_home = 0.25, team_home = 0.26, score_away = 0.04, team_away = 0.024
     # spread_favorite = 0.025
     # 65/50
@@ -187,8 +187,33 @@ def random_forest():
 
 accuracy, f1 = knn()
 
-print(accuracy)
-print(f1)
+print("Test_1 accuracy from K Nearest Neighbors: ", accuracy)
+print("Test_1 F1 score from K Nearest Neighbors: ", f1)
+print("\n")
+
+accuracy, f1 = svm()
+
+print("Test_1 accuracy from Support Vector Machine: ", accuracy)
+print("Test 1 F1 score from Support Vector Machine: ", f1)
+print("\n")
+
+accuracy, f1 = logistic_reg()
+
+print("Test_1 accuracy from Logistic Regression: ", accuracy)
+print("Test_1 F1 score from Logistic Regression: ", f1)
+print("\n")
+
+accuracy, f1 = naive_bayes()
+
+print("Test_1 accuracy from Naive Bayes: ", accuracy)
+print("Test_1 F1 score from Naive Bayes: ", f1)
+print("\n")
+
+accuracy, f1 = random_forest()
+
+print("Test 1 accuracy from Random Forest: ", accuracy)
+print("Test 1 F1 score from Random Forest: ", f1)
+print("\n")
 
 
 nfl_features = nfl_features[['score_home', 'team_home', 'score_away', 'team_away']]
@@ -207,10 +232,34 @@ y = nfl_label.to_numpy()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
+accuracy, f1 = knn()
+
+print("Test_2 accuracy from K Nearest Neighbors: ", accuracy)
+print("Test_2 F1 score from K Nearest Neighbors: ", f1)
+print("\n")
+
+accuracy, f1 = svm()
+
+print("Test_2 accuracy from Support Vector Machine: ", accuracy)
+print("Test_2 F1 score from Support Vector Machine: ", f1)
+print("\n")
+
+accuracy, f1 = logistic_reg()
+
+print("Test_2 accuracy from Logistic Regression: ", accuracy)
+print("Test_2 F1 score from Logistic Regression: ", f1)
+print("\n")
+
+accuracy, f1 = naive_bayes()
+
+print("Test_2 accuracy from Naive Bayes: ", accuracy)
+print("Test_2 F1 score from Naive Bayes: ", f1)
+print("\n")
+
 accuracy, f1 = random_forest()
 
-print(accuracy)
-print(f1)
+print("Test_2 accuracy from Random Forest: ", accuracy)
+print("Test_2 F1 score from Random Forest: ", f1)
 
 
 
