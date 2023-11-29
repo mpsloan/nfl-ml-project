@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -98,7 +99,7 @@ nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
 
 # Removing humidity feature, not very consequential and around 40% missing
 # Removing schedule date because the date is broke up into 3 features now (month, day, year)
-nfl_features.drop(columns=['weather_humidity', 'schedule_date'], inplace=True)
+nfl_features.drop(columns=['weather_humidity', 'schedule_date', 'score_home', 'score_away'], inplace=True)
 
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
@@ -148,13 +149,25 @@ def logistic_reg():
     y_pred = log_reg.predict(X_test)
 
     reg_accuracy = accuracy_score(y_test, y_pred)
-
     reg_f1 = f1_score(y_test, y_pred)
     # 65/59 newton-cg
     return reg_accuracy, reg_f1
 
 
-accuracy, f1 = logistic_reg()
+def naive_bayes():
+    nb = BernoulliNB()
+    nb.fit(X_train, y_train)
+
+    y_pred = nb.predict(X_test)
+
+    nb_accuracy = accuracy_score(y_test, y_pred)
+    nb_f1 = f1_score(y_test, y_pred)
+    # 52/5 gaussian
+    # 58/51 bernoulli
+    return nb_accuracy, nb_f1
+
+
+accuracy, f1 = svm()
 
 print(accuracy)
 print(f1)
