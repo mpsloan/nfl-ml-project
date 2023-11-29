@@ -103,6 +103,8 @@ nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
 nfl_features.drop(columns=['weather_humidity', 'schedule_date'], inplace=True)
 # probably drop schedule month, day, year
 
+nfl_features2 = nfl_features.copy(deep=True)
+
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
@@ -260,6 +262,52 @@ accuracy, f1 = random_forest()
 
 print("Test_2 accuracy from Random Forest: ", accuracy)
 print("Test_2 F1 score from Random Forest: ", f1)
+print("\n")
+
+nfl_features = nfl_features2.drop(columns=['score_home', 'score_away'], inplace=False)
+
+nfl_num = nfl_features.select_dtypes(include=['number'])
+
+nfl_cat = nfl_features.select_dtypes(exclude=['number'])
+
+nfl_cat_encoded = pd.get_dummies(nfl_cat)
+
+std_scaler = StandardScaler()
+nfl_num_scaled = std_scaler.fit_transform(nfl_num)
+
+X = np.concatenate((nfl_num_scaled, nfl_cat_encoded), axis=1)
+y = nfl_label.to_numpy()
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
+
+accuracy, f1 = knn()
+
+print("Test_3 accuracy from K Nearest Neighbors: ", accuracy)
+print("Test_3 F1 score from K Nearest Neighbors: ", f1)
+print("\n")
+
+accuracy, f1 = svm()
+
+print("Test_3 accuracy from Support Vector Machine: ", accuracy)
+print("Test_3 F1 score from Support Vector Machine: ", f1)
+print("\n")
+
+accuracy, f1 = logistic_reg()
+
+print("Test_3 accuracy from Logistic Regression: ", accuracy)
+print("Test_3 F1 score from Logistic Regression: ", f1)
+print("\n")
+
+accuracy, f1 = naive_bayes()
+
+print("Test_3 accuracy from Naive Bayes: ", accuracy)
+print("Test_3 F1 score from Naive Bayes: ", f1)
+print("\n")
+
+accuracy, f1 = random_forest()
+
+print("Test_3 accuracy from Random Forest: ", accuracy)
+print("Test_3 F1 score from Random Forest: ", f1)
 
 
 
