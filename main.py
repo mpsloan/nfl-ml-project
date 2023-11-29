@@ -3,6 +3,7 @@ import csv
 import os
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
@@ -99,7 +100,8 @@ nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
 
 # Removing humidity feature, not very consequential and around 40% missing
 # Removing schedule date because the date is broke up into 3 features now (month, day, year)
-nfl_features.drop(columns=['weather_humidity', 'schedule_date', 'score_home', 'score_away'], inplace=True)
+nfl_features.drop(columns=['weather_humidity', 'schedule_date'], inplace=True)
+# probably drop schedule month, day, year
 
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
@@ -167,7 +169,23 @@ def naive_bayes():
     return nb_accuracy, nb_f1
 
 
-accuracy, f1 = svm()
+def random_forest():
+    rnd_f = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, random_state=42)
+    rnd_f.fit(X_train, y_train)
+
+    y_pred = rnd_f.predict(X_test)
+
+    rf_accuracy = accuracy_score(y_test, y_pred)
+    rf_f1 = f1_score(y_test, y_pred)
+    for name, score in zip(nfl_features, rnd_f.feature_importances_):
+        print(name, score)
+    # score_home = 0.25, team_home = 0.26, score_away = 0.04, team_away = 0.024
+    # spread_favorite = 0.025
+    # 65/50
+    return rf_accuracy, rf_f1
+
+
+accuracy, f1 = random_forest()
 
 print(accuracy)
 print(f1)
