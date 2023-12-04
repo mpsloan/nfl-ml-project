@@ -7,7 +7,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
-from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -47,7 +46,6 @@ nfl_features['over_under_line'] = nfl_features['over_under_line'].replace(' ', n
 nfl_features['over_under_line'] = nfl_features['over_under_line'].astype(float)
 average_ou = nfl_features['over_under_line'].mean()
 nfl_features['over_under_line'].fillna(average_ou, inplace=True)
-
 
 
 # Conditions for adding week numbers to dataset
@@ -126,10 +124,8 @@ def knn():
 
     y_pred = k_nearest.predict(X_test)
 
-    knn_accuracy = accuracy_score(y_test, y_pred)
-    knn_f1 = f1_score(y_test, y_pred)
     # 71 accuracy, 64 F1, k=25
-    return knn_accuracy, knn_f1
+    print(classification_report(y_test, y_pred))
 
 
 def svm():
@@ -138,12 +134,10 @@ def svm():
 
     y_pred = support_vm.predict(X_test)
 
-    svm_accuracy = accuracy_score(y_test, y_pred)
-    svm_f1 = f1_score(y_test, y_pred)
     # 71/62 poly
     # 67/60 linear
     # 72/65 rbf
-    return svm_accuracy, svm_f1
+    print(classification_report(y_test, y_pred))
 
 
 def logistic_reg():
@@ -152,11 +146,8 @@ def logistic_reg():
 
     y_pred = log_reg.predict(X_test)
 
-    reg_accuracy = accuracy_score(y_test, y_pred)
-    reg_f1 = f1_score(y_test, y_pred)
     # 65/59 newton-cg
-    return reg_accuracy, reg_f1
-
+    print(classification_report(y_test, y_pred))
 
 def naive_bayes():
     nb = BernoulliNB()
@@ -164,11 +155,9 @@ def naive_bayes():
 
     y_pred = nb.predict(X_test)
 
-    nb_accuracy = accuracy_score(y_test, y_pred)
-    nb_f1 = f1_score(y_test, y_pred)
     # 52/5 gaussian
     # 58/51 bernoulli
-    return nb_accuracy, nb_f1
+    print(classification_report(y_test, y_pred))
 
 
 def random_forest():
@@ -177,48 +166,46 @@ def random_forest():
 
     y_pred = rnd_f.predict(X_test)
 
-    rf_accuracy = accuracy_score(y_test, y_pred)
-    rf_f1 = f1_score(y_test, y_pred)
+    print(classification_report(y_test, y_pred))
+
     # for name, score in zip(nfl_features, rnd_f.feature_importances_):
     #     print(name, score)
     # score_home = 0.25, team_home = 0.26, score_away = 0.04, team_away = 0.024
     # spread_favorite = 0.025
     # 65/50
-    return rf_accuracy, rf_f1
 
 
-accuracy, f1 = knn()
 
-print("Test_1 accuracy from K Nearest Neighbors: ", accuracy)
-print("Test_1 F1 score from K Nearest Neighbors: ", f1)
+print("Test_1 Features: ")
+for column in nfl_features.columns:
+    print(column)
+
+print("Test_1")
+print("K Nearest Neighbors")
+knn()
 print("\n")
 
-accuracy, f1 = svm()
-
-print("Test_1 accuracy from Support Vector Machine: ", accuracy)
-print("Test 1 F1 score from Support Vector Machine: ", f1)
+print("Support Vector Machine")
+svm()
 print("\n")
 
-accuracy, f1 = logistic_reg()
-
-print("Test_1 accuracy from Logistic Regression: ", accuracy)
-print("Test_1 F1 score from Logistic Regression: ", f1)
+print("Logistic Regression")
+logistic_reg()
 print("\n")
 
-accuracy, f1 = naive_bayes()
-
-print("Test_1 accuracy from Naive Bayes: ", accuracy)
-print("Test_1 F1 score from Naive Bayes: ", f1)
+print("Naive Bayes")
+naive_bayes()
 print("\n")
 
-accuracy, f1 = random_forest()
-
-print("Test 1 accuracy from Random Forest: ", accuracy)
-print("Test 1 F1 score from Random Forest: ", f1)
+print("Random Forest")
+random_forest()
 print("\n")
-
 
 nfl_features = nfl_features[['score_home', 'team_home', 'score_away', 'team_away']]
+
+print("Test_2 Features: ")
+for column in nfl_features.columns:
+    print(column)
 
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
@@ -234,38 +221,33 @@ y = nfl_label.to_numpy()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
-accuracy, f1 = knn()
-
-print("Test_2 accuracy from K Nearest Neighbors: ", accuracy)
-print("Test_2 F1 score from K Nearest Neighbors: ", f1)
+print("Test_2")
+print("K Nearest Neighbors")
+knn()
 print("\n")
 
-accuracy, f1 = svm()
-
-print("Test_2 accuracy from Support Vector Machine: ", accuracy)
-print("Test_2 F1 score from Support Vector Machine: ", f1)
+print("Support Vector Machine")
+svm()
 print("\n")
 
-accuracy, f1 = logistic_reg()
-
-print("Test_2 accuracy from Logistic Regression: ", accuracy)
-print("Test_2 F1 score from Logistic Regression: ", f1)
+print("Logistic Regression")
+logistic_reg()
 print("\n")
 
-accuracy, f1 = naive_bayes()
-
-print("Test_2 accuracy from Naive Bayes: ", accuracy)
-print("Test_2 F1 score from Naive Bayes: ", f1)
+print("Naive Bayes")
+naive_bayes()
 print("\n")
 
-accuracy, f1 = random_forest()
-
-print("Test_2 accuracy from Random Forest: ", accuracy)
-print("Test_2 F1 score from Random Forest: ", f1)
+print("Random Forest")
+random_forest()
 print("\n")
 
 nfl_features = nfl_features2.drop(columns=['score_home', 'score_away'], inplace=False)
 
+print("Test_3 Features: ")
+for column in nfl_features.columns:
+    print(column)
+
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
@@ -280,42 +262,26 @@ y = nfl_label.to_numpy()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
-accuracy, f1 = knn()
-
-print("Test_3 accuracy from K Nearest Neighbors: ", accuracy)
-print("Test_3 F1 score from K Nearest Neighbors: ", f1)
+print("Test_3")
+print("K Nearest Neighbors")
+knn()
 print("\n")
 
-accuracy, f1 = svm()
-
-print("Test_3 accuracy from Support Vector Machine: ", accuracy)
-print("Test_3 F1 score from Support Vector Machine: ", f1)
+print("Support Vector Machine")
+svm()
 print("\n")
 
-accuracy, f1 = logistic_reg()
-
-print("Test_3 accuracy from Logistic Regression: ", accuracy)
-print("Test_3 F1 score from Logistic Regression: ", f1)
+print("Logistic Regression")
+logistic_reg()
 print("\n")
 
-accuracy, f1 = naive_bayes()
-
-print("Test_3 accuracy from Naive Bayes: ", accuracy)
-print("Test_3 F1 score from Naive Bayes: ", f1)
+print("Naive Bayes")
+naive_bayes()
 print("\n")
 
-accuracy, f1 = random_forest()
-
-print("Test_3 accuracy from Random Forest: ", accuracy)
-print("Test_3 F1 score from Random Forest: ", f1)
-
-
-
-
-
-
-
-
+print("Random Forest")
+random_forest()
+print("\n")
 
 
 # nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
