@@ -87,12 +87,6 @@ nfl_features.loc[sb_combination, 'schedule_week'] = 22
 # All features are now integers
 nfl_features['schedule_week'] = nfl_features['schedule_week'].astype(int)
 
-# Break the dates up into individual features for month, day, and year
-nfl_features['schedule_date'] = pd.to_datetime(nfl_features['schedule_date'])
-nfl_features['schedule_month'] = nfl_features['schedule_date'].dt.month
-nfl_features['schedule_day'] = nfl_features['schedule_date'].dt.day
-nfl_features['schedule_year'] = nfl_features['schedule_date'].dt.year
-
 # Converting boolean values to integers
 nfl_features['schedule_playoff'] = nfl_features['schedule_playoff'].astype(int)
 nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
