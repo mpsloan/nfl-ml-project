@@ -3,6 +3,7 @@ import csv
 import os
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, classification_report
@@ -128,6 +129,34 @@ def knn():
     print(classification_report(y_test, y_pred))
 
 
+def visualize_knn():
+    k_nearest = KNeighborsClassifier(n_neighbors=25)
+    k_nearest.fit(X_train[:, :2], y_train)  # Use only the first two features for fitting
+
+    # Create a meshgrid of points to visualize the decision boundary
+    h = .02  # Step size in the mesh
+    x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
+    y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+
+    # Predict the labels for each point in the meshgrid
+    Z = k_nearest.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Plot the decision boundary
+    plt.figure(figsize=(8, 6))
+    plt.contourf(xx, yy, Z, cmap='coolwarm', alpha=0.8)
+
+    # Plot the training points
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='coolwarm', edgecolors='k', marker='o', s=100)
+
+    plt.xlabel(nfl_features.columns[0])
+    plt.ylabel(nfl_features.columns[1])
+    plt.title('K-Nearest Neighbors Decision Boundary')
+    plt.show()
+
+
 def svm():
     support_vm = SVC(kernel='rbf', random_state=42)
     support_vm.fit(X_train, y_train)
@@ -138,6 +167,40 @@ def svm():
     # 67/60 linear
     # 72/65 rbf
     print(classification_report(y_test, y_pred))
+
+
+def visualize_svm():
+    support_vm = SVC(kernel='rbf', random_state=42)
+
+    # Use first two features from X training data
+    support_vm.fit(X_train[:, :2], y_train)
+
+    # Plot the decision boundary
+    plt.figure(figsize=(8, 6))
+    if X_train.shape[1] >= 2:  # Check if at least two features are available
+        # Use the first two features for visualization
+        plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='coolwarm', edgecolors='k', marker='o', s=100)
+        ax = plt.gca()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        # Create grid to evaluate model
+        xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 50),
+                             np.linspace(ylim[0], ylim[1], 50))
+        Z = support_vm.decision_function(np.c_[xx.ravel(), yy.ravel()])
+        Z = Z.reshape(xx.shape)
+
+        # Plot decision boundary and margins
+        plt.contourf(xx, yy, Z, cmap='coolwarm', alpha=0.8)
+        plt.contour(xx, yy, Z, colors='k', levels=[-1, 0, 1], alpha=0.5, linestyles=['--', '-', '--'])
+
+    else:
+        print("Dataset has fewer than two features. Unable to visualize decision boundary.")
+
+    plt.xlabel(nfl_features.columns[0])
+    plt.ylabel(nfl_features.columns[1])
+    plt.title('Support Vector Machine Decision Boundary')
+    plt.show()
 
 
 def logistic_reg():
@@ -223,11 +286,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_
 
 print("Test_2")
 print("K Nearest Neighbors")
+visualize_knn()
 knn()
 print("\n")
 
 print("Support Vector Machine")
 svm()
+visualize_svm()
 print("\n")
 
 print("Logistic Regression")
