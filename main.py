@@ -19,6 +19,9 @@ def load_data():
     csv_path = os.path.join(data_path, "nfl_data_edit2.csv")
     return pd.read_csv(csv_path)
 
+df = pd.read_csv("nfl_data.csv")
+print(df.info)
+print(df.isna().sum().sum())
 
 # declare data, label is covered, rest are the features
 nfl_data = load_data()
@@ -342,23 +345,9 @@ print("Random Forest")
 random_forest()
 print("\n")
 
-
-# nfl_data['schedule_playoff_encoded'] = label_encoder.fit_transform(nfl_data['schedule_playoff'])
-
-# nfl_data['stadium_neutral_encoded'] = label_encoder.fit_transform(nfl_data['stadium_neutral'])
-
-
-# print(nfl_data.info)
-#
-# missing_counts = nfl_data.isnull().sum()
-#
-# print(missing_counts)
-#
-# missing_percentage = (nfl_data.isnull().mean() * 100).round(2)
-#
-# print(missing_percentage)
-
-
+# I initially preprocessed like this because I did not realize I could perform the same functions
+# with a pandas dataframe object and it would be easier
+# only taking the rows I wanted between
 # with open('nfl_data.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
 #     writer = csv.writer(out)
 #     for row in csv.reader(inp):
@@ -369,6 +358,7 @@ print("\n")
 #         i += 1
 
 
+# dictionary to match the team favorite id with the correct away or home team
 teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts": "IND", "Baltimore Ravens": "BAL",
          "Boston Patriots": "NE", "Buffalo Bills": "BUF", "Carolina Panthers": "CAR", "Chicago Bears": "CHI",
          "Cincinnati Bengals": "CIN", "Cleveland Browns": "CLE", "Dallas Cowboys": "DAL", "Denver Broncos": "DEN",
@@ -385,7 +375,7 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
 
 # data = pd.read_csv("nfl_data_edit.csv")
 # data["covered"] = "0"
-# data.to_csv("nfl_data_edit2.csv", index=False)
+# data.to_csv("nfl_data_edit.csv", index=False)
 
 # spread = pd.Series([])
 #
@@ -417,39 +407,5 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
 # data.drop('covered', inplace=True, axis=1)
 # data.insert(17, "covered", spread)
 #
-# data.to_csv('nfl_data_edit2.csv', index=False)
+# data.to_csv('nfl_data_edit.csv', index=False)
 
-
-# i = 0
-# with open('nfl_data_edit.csv', 'r') as inp, open('nfl_data_edit2.csv', 'w') as out:
-#     writer = csv.writer(out)
-#     reader = csv.reader(inp)
-#     for row in reader:
-#         for column in reader:
-#             if row != 0:
-#                 team_home = column[4]
-#                 team_home_id = teams.get(team_home)
-#                 score_home = float(column[5])
-#                 score_away = float(column[6])
-#                 team_away = column[7]
-#                 team_fav_id = column[8]
-#                 spread_fav = float(column[9])
-#                 if team_fav_id == team_home_id:
-#                     home_fav = True
-#                 else:
-#                     away_fav = True
-#                     home_fav = False
-#
-#                 if home_fav:
-#                     difference = score_home - score_away - spread_fav
-#                 else:
-#                     difference = score_away - score_home - spread_fav
-#
-#                 if difference > 0:
-#                     column[17] = "1"
-#                 else:
-#                     column[17] = "0"
-#                 #i += 1
-
-# if __name__ == '__main__':
-#     print("Main")
