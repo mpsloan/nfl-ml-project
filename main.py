@@ -13,15 +13,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
-
+# load csv file
 def load_data():
     data_path = ""
-    csv_path = os.path.join(data_path, "nfl_data_edit2.csv")
+    csv_path = os.path.join(data_path, "nfl_data_edit.csv")
     return pd.read_csv(csv_path)
 
-df = pd.read_csv("nfl_data.csv")
-print(df.info)
-print(df.isna().sum().sum())
 
 # declare data, label is covered, rest are the features
 nfl_data = load_data()
@@ -95,27 +92,30 @@ nfl_features['schedule_playoff'] = nfl_features['schedule_playoff'].astype(int)
 nfl_features['stadium_neutral'] = nfl_features['stadium_neutral'].astype(int)
 
 # Removing humidity feature, not very consequential and around 40% missing
-# Removing schedule date because the date is broke up into 3 features now (month, day, year)
+# Removing schedule date because it holds no significance
 nfl_features.drop(columns=['weather_humidity', 'schedule_date'], inplace=True)
-# probably drop schedule month, day, year
 
+# creating deep copy to run various tests with different combinations of features
 nfl_features2 = nfl_features.copy(deep=True)
 
+# break up numeric and categorical
 nfl_num = nfl_features.select_dtypes(include=['number'])
-
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
 
+# encode categorical features
 nfl_cat_encoded = pd.get_dummies(nfl_cat)
 
+# scale the numeric values
 std_scaler = StandardScaler()
 nfl_num_scaled = std_scaler.fit_transform(nfl_num)
 
+# create the X and y test and train values
 X = np.concatenate((nfl_num_scaled, nfl_cat_encoded), axis=1)
 y = nfl_label.to_numpy()
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
 
+# K nearest neighbors model
 def knn():
     k_nearest = KNeighborsClassifier(n_neighbors=25)
     k_nearest.fit(X_train, y_train)
@@ -126,18 +126,17 @@ def knn():
     print(classification_report(y_test, y_pred))
 
 
+# visualization for knn
 def visualize_knn():
     k_nearest = KNeighborsClassifier(n_neighbors=25)
     k_nearest.fit(X_train[:, :2], y_train)  # Use only the first two features for fitting
 
-    # Create a meshgrid of points to visualize the decision boundary
-    h = .02  # Step size in the mesh
+    h = .02
     x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
     y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
     xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
                          np.arange(y_min, y_max, h))
 
-    # Predict the labels for each point in the meshgrid
     Z = k_nearest.predict(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
 
@@ -153,7 +152,7 @@ def visualize_knn():
     plt.title('K-Nearest Neighbors Decision Boundary')
     plt.show()
 
-
+# support vector machine model
 def svm():
     support_vm = SVC(kernel='rbf', random_state=42)
     support_vm.fit(X_train, y_train)
@@ -165,23 +164,19 @@ def svm():
     # 72/65 rbf
     print(classification_report(y_test, y_pred))
 
-
+# visualization of svm
 def visualize_svm():
     support_vm = SVC(kernel='rbf', random_state=42)
-
-    # Use first two features from X training data
     support_vm.fit(X_train[:, :2], y_train)
 
-    # Plot the decision boundary
     plt.figure(figsize=(8, 6))
-    if X_train.shape[1] >= 2:  # Check if at least two features are available
+    if X_train.shape[1] >= 2:
         # Use the first two features for visualization
         plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='coolwarm', edgecolors='k', marker='o', s=100)
         ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
-        # Create grid to evaluate model
         xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 50),
                              np.linspace(ylim[0], ylim[1], 50))
         Z = support_vm.decision_function(np.c_[xx.ravel(), yy.ravel()])
@@ -200,6 +195,7 @@ def visualize_svm():
     plt.show()
 
 
+# logistic regression model
 def logistic_reg():
     log_reg = LogisticRegression(solver='newton-cg', random_state=42)
     log_reg.fit(X_train, y_train)
@@ -209,6 +205,7 @@ def logistic_reg():
     # 65/59 newton-cg
     print(classification_report(y_test, y_pred))
 
+# naive bayes model that I chose to introduce
 def naive_bayes():
     nb = BernoulliNB()
     nb.fit(X_train, y_train)
@@ -220,6 +217,7 @@ def naive_bayes():
     print(classification_report(y_test, y_pred))
 
 
+# random forest model
 def random_forest():
     rnd_f = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, random_state=42)
     rnd_f.fit(X_train, y_train)
@@ -228,17 +226,22 @@ def random_forest():
 
     print(classification_report(y_test, y_pred))
 
+    # I used this code to determine which features were most important
+    # I commented it out because it doesn't have to run everytime, it's unnecessary
     # for name, score in zip(nfl_features, rnd_f.feature_importances_):
     #     print(name, score)
+
+    # most important features
     # score_home = 0.25, team_home = 0.26, score_away = 0.04, team_away = 0.024
-    # spread_favorite = 0.025
     # 65/50
 
 
-
+# Test_1 contains all of the original features from above, no alterations made yet
 print("Test_1 Features: ")
 for column in nfl_features.columns:
     print(column)
+
+print("\n")
 
 print("Test_1")
 print("K Nearest Neighbors")
@@ -261,12 +264,16 @@ print("Random Forest")
 random_forest()
 print("\n")
 
+# Test_2 contains only the 4 most important features as found in the random forest function
 nfl_features = nfl_features[['score_home', 'team_home', 'score_away', 'team_away']]
 
 print("Test_2 Features: ")
 for column in nfl_features.columns:
     print(column)
 
+print("\n")
+
+# Rescaling and distributing test and training data just in case
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
@@ -304,12 +311,17 @@ print("Random Forest")
 random_forest()
 print("\n")
 
+# nfl_features2 is just a deep copy of the original nfl_features used in Test_1
+# Test_3 is the same features from Test_1 except I dropped the home and away scores
 nfl_features = nfl_features2.drop(columns=['score_home', 'score_away'], inplace=False)
 
 print("Test_3 Features: ")
 for column in nfl_features.columns:
     print(column)
 
+print("\n")
+
+# Rescaling and distributing test and training data just in case
 nfl_num = nfl_features.select_dtypes(include=['number'])
 
 nfl_cat = nfl_features.select_dtypes(exclude=['number'])
@@ -345,8 +357,12 @@ print("Random Forest")
 random_forest()
 print("\n")
 
+
 # I initially preprocessed like this because I did not realize I could perform the same functions
-# with a pandas dataframe object and it would be easier
+# with a pandas dataframe object, and it would be easier
+# I just wanted to include it in comments because it doesn't need to be run repeatedly, and it shows
+# how I got from the original dataset "nfl_data.csv" to "nfl_data_edit.csv"
+
 # only taking the rows I wanted between
 # with open('nfl_data.csv', 'r') as inp, open('nfl_data_edit.csv', 'w') as out:
 #     writer = csv.writer(out)
@@ -373,14 +389,18 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
          "Tennessee Titans": "TEN", "Washington Commanders": "WAS", "Washington Football Team": "WAS",
          "Washington Redskins": "WAS"}
 
+# adding the covered column
 # data = pd.read_csv("nfl_data_edit.csv")
 # data["covered"] = "0"
 # data.to_csv("nfl_data_edit.csv", index=False)
 
 # spread = pd.Series([])
 #
-# # https://www.kaggle.com/code/mahdinezhadasad/adding-new-column-to-csv-file
+# This is how I learned to iterate through a csv file
+# https://www.kaggle.com/code/mahdinezhadasad/adding-new-column-to-csv-file
 # for i in range(len(data)):
+
+# matching columns with variables
 #     team_home = data['team_home'][i]
 #     team_home_id = teams.get(team_home)
 #     score_home = float(data['score_home'][i])
@@ -393,12 +413,12 @@ teams = {"Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Colts"
 #     else:
 #         away_fav = True
 #         home_fav = False
-#
+# math used to determine if favorite covered the spread or not
 #     if home_fav:
 #         difference = score_home - score_away + spread_fav
 #     else:
 #         difference = score_away - score_home + spread_fav
-#
+# 1 means favorite covered, 0 means they didn't
 #     if difference > 0:
 #         spread[i] = 1
 #     else:
