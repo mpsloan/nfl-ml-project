@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix, roc_curve, auc
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -217,6 +217,48 @@ def naive_bayes():
     print(classification_report(y_test, y_pred))
 
 
+def visualize_nb():
+    nb = BernoulliNB()
+    nb.fit(X_train, y_train)
+    y_pred = nb.predict(X_test)
+
+    # Create a confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
+
+    # Plot confusion matrix
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+    classes = ['Class 0', 'Class 1']
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+
+    # Display the confusion matrix values on the plot
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            plt.text(j, i, str(cm[i, j]), horizontalalignment='center', verticalalignment='center')
+
+    plt.show()
+
+    # Plot ROC curve
+    y_score = nb.predict_proba(X_test)[:, 1]
+    fpr, tpr, _ = roc_curve(y_test, y_score)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc='lower right')
+    plt.show()
+
 # random forest model
 def random_forest():
     rnd_f = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, random_state=42)
@@ -305,6 +347,7 @@ print("\n")
 
 print("Naive Bayes")
 naive_bayes()
+visualize_nb()
 print("\n")
 
 print("Random Forest")
