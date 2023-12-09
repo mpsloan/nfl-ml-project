@@ -6,8 +6,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix, roc_curve, auc
-from sklearn.naive_bayes import GaussianNB, BernoulliNB
+from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -217,15 +217,16 @@ def naive_bayes():
     print(classification_report(y_test, y_pred))
 
 
+# visualization of bernoulli naive bayes
 def visualize_nb():
     nb = BernoulliNB()
     nb.fit(X_train, y_train)
     y_pred = nb.predict(X_test)
 
-    # Create a confusion matrix
+    # create a confusion matrix
     cm = confusion_matrix(y_test, y_pred)
 
-    # Plot confusion matrix
+    # plot confusion matrix
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title('Confusion Matrix')
     plt.colorbar()
@@ -236,14 +237,14 @@ def visualize_nb():
     plt.xlabel('Predicted Label')
     plt.ylabel('True Label')
 
-    # Display the confusion matrix values on the plot
+    # display the confusion matrix values on the plot
     for i in range(len(classes)):
         for j in range(len(classes)):
             plt.text(j, i, str(cm[i, j]), horizontalalignment='center', verticalalignment='center')
 
     plt.show()
 
-    # Plot ROC curve
+    # plot curve
     y_score = nb.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_score)
     roc_auc = auc(fpr, tpr)
